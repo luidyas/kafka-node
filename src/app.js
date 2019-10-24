@@ -37,5 +37,5 @@ async function run() {
 }
 
 run().catch(console.error).then(()=>{
-    app.listen(3000, console.log("Server ON"))
+    app.listen(3000, console.log("Server ON http://localhost:3000"))
 })

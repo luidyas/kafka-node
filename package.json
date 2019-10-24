@@ -5,11 +5,14 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "concurrently": "^5.0.0",
     "express": "^4.17.1",
     "kafkajs": "^1.11.0"
   },
   "scripts": {
-    "dev": "nodemon src/app.js"
+    "producer": "nodemon src/app.js",
+    "consumer": "nodemon consumer/src/app.js",
+    "start": "concurrently \"npm run producer\" \"npm run consumer\"" 
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
