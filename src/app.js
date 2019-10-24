@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const {Kafka} = require('kafkajs')
 
 const kafka = new Kafka({
-    clientId: 'consumer-app',
+    clientId: 'my-app',
     brokers: ['localhost:9092']
 })
 

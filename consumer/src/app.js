@@ -3,11 +3,11 @@ const app = express()
 const {Kafka} = require('kafkajs')
 
 const kafka = new Kafka({
-    clientId: 'consumer-app',
+    clientId: 'my-app',
     brokers: ['localhost:9092']
 })
 
-app.get('/', async(req, res)=>{
+async function run(){
     const consumer = kafka.consumer({ groupId: 'test-group' })
     await consumer.connect()
     await consumer.subscribe({ topic: 'test-topic' })
@@ -19,6 +19,6 @@ app.get('/', async(req, res)=>{
             })
         },
     })
-    return res.json({msg: 'recebido com sucesso'})
-})
-app.listen(3002, console.log('consumer on'))
+}
+
+run().catch(console.error)
