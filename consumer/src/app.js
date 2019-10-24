@@ -1,5 +1,3 @@
-const express = require('express')
-const app = express()
 const {Kafka} = require('kafkajs')
 
 const kafka = new Kafka({
@@ -7,16 +5,22 @@ const kafka = new Kafka({
     brokers: ['localhost:9092']
 })
 
+const consumer = kafka.consumer({ groupId: 'test-group' })
+const producer = kafka.producer()
 async function run(){
-    const consumer = kafka.consumer({ groupId: 'test-group' })
     await consumer.connect()
     await consumer.subscribe({ topic: 'test-topic' })
 
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-            console.log({
-                value: message.value.toString(),
-            })
+            setTimeout(async () => {
+                await producer.send({
+                    topic: 'callback-topic',
+                    messages: [
+                        { value: message.value.toString()}
+                    ]
+                })
+            }, 3000)
         },
     })
 }

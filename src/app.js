@@ -7,26 +7,35 @@ const kafka = new Kafka({
     brokers: ['localhost:9092']
 })
 
-const message = {
-    user: {id: 1, name: 'test'},
-    email: 'test@gmail.com',
-    age: 99
-}
-
 const app = express()
 
 app.use(bodyParser.json())
 
+const producer = kafka.producer()
+const consumer = kafka.consumer({ groupId: 'group-received' })
+
 app.post('/', async(req, res)=>{
-    const producer = kafka.producer()
-    await producer.connect()
     await producer.send({
         topic: 'test-topic',
         messages: [
-            { value: JSON.stringify(message) },
+            {value: 'Hello Kafka!'}
         ],
     })
-    res.json({msg: 'Send with success'})
+
+    return res.json({ ok: true });
 })
 
-app.listen(3000, console.log('producer on '))
+async function run() {
+    await producer.connect()
+    await consumer.connect()
+    await consumer.subscribe({ topic: 'callback-topic' });
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            console.log(`Resposta de callback: ${message.value.toString()}`);
+        },
+    });
+}
+
+run().catch(console.error).then(()=>{
+    app.listen(3000, console.log("Server ON"))
+})
