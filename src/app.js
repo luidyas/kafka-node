@@ -1,10 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const {Kafka} = require('kafkajs')
+const {Kafka, logLevel} = require('kafkajs')
 
 const kafka = new Kafka({
     clientId: 'my-app',
-    brokers: ['localhost:9092']
+    brokers: ['localhost:9092'],
+    logLevel: logLevel.NOTHING = 0
 })
 
 const app = express()
@@ -12,9 +13,7 @@ const app = express()
 app.use(bodyParser.json())
 
 const producer = kafka.producer()
-const consumer = kafka.consumer({ groupId: 'group-received' })
-
-app.post('/', async(req, res)=>{
+app.get('/', async(req, res)=>{
     await producer.send({
         topic: 'test-topic',
         messages: [
@@ -22,18 +21,11 @@ app.post('/', async(req, res)=>{
         ],
     })
 
-    return res.json({ ok: true });
+    return res.json({ ok: 'Enviado com sucesso' });
 })
 
 async function run() {
     await producer.connect()
-    await consumer.connect()
-    await consumer.subscribe({ topic: 'callback-topic' });
-    await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-            console.log(`Resposta de callback: ${message.value.toString()}`);
-        },
-    });
 }
 
 run().catch(console.error).then(()=>{

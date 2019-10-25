@@ -6,21 +6,12 @@ const kafka = new Kafka({
 })
 
 const consumer = kafka.consumer({ groupId: 'test-group' })
-const producer = kafka.producer()
 async function run(){
     await consumer.connect()
     await consumer.subscribe({ topic: 'test-topic' })
-
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-            setTimeout(async () => {
-                await producer.send({
-                    topic: 'callback-topic',
-                    messages: [
-                        { value: message.value.toString()}
-                    ]
-                })
-            }, 3000)
+            console.log({value: message.value.toString()});
         },
     })
 }
